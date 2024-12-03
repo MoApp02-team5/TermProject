@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
@@ -22,16 +23,28 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.termproject.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainPageScreen(navController: NavController) {
+    val viewModel = hiltViewModel<MainViewModel>()
+    val uiState = viewModel.state.collectAsState()
+    LaunchedEffect (key1 = uiState.value) {
+        if(uiState.value == SignOutState.LoggedOut)
+            navController.navigate("login"){
+                popUpTo("home"){inclusive = true}
+            }
+    }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -39,10 +52,20 @@ fun MainPageScreen(navController: NavController) {
                 title = {
                     Text(text = "Main page")
                 },
+                actions = {
+                    IconButton(onClick = {viewModel.signOut()}) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                            contentDescription = null,
+                            tint = Color.Gray
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background// 원하는 색으로 변경
                 )
             )
+
         },
         bottomBar = {
             BottomAppBar(

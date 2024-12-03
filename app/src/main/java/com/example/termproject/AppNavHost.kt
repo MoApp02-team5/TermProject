@@ -14,13 +14,15 @@ import com.example.termproject.ui.home.MainPageScreen
 import com.example.termproject.ui.register.RegisterScreen
 import com.example.termproject.ui.product.SelectProductScreen
 import com.example.termproject.ui.stats.StatsScreen
+import com.google.firebase.auth.FirebaseAuth
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavHost() {
     val navController = rememberNavController()
-
-    NavHost(navController = navController, startDestination = "login") {
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val start = if(currentUser != null)"main" else "login"
+    NavHost(navController = navController, startDestination = start) {
         composable("login") { LoginScreen(navController) }
         composable("register") { RegisterScreen(navController) }
         composable("main") { MainPageScreen(navController) }
