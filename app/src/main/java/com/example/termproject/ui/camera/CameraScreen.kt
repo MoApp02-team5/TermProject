@@ -1,4 +1,4 @@
-package com.example.termproject.ui.pages
+package com.example.termproject.ui.camera
 
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -23,6 +23,7 @@ import androidx.navigation.NavController
 import com.example.termproject.R
 import com.example.termproject.camera.CameraPreview
 import android.Manifest
+import androidx.compose.foundation.layout.padding
 
 @Composable
 fun CameraScreen(navController: NavController) {
@@ -63,7 +64,7 @@ fun CameraScreen(navController: NavController) {
         if (permissionState.value) {
             CameraPreview()
         } else {
-            Text("카메라 권한이 필요합니다.", Modifier.fillMaxSize(), textAlign = TextAlign.Center)
+            Text("카메라 권한이 필요합니다.", Modifier.fillMaxSize().padding(innerpadding), textAlign = TextAlign.Center)
         }
     }
 }
