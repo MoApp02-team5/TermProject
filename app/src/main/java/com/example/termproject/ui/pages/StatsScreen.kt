@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
@@ -17,6 +18,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -37,11 +39,9 @@ fun StatsScreen(navController: NavController) {
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = "Stats")
-                },
+                title = { Text(text = "Stats") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background // 원하는 색으로 변경
+                    containerColor = MaterialTheme.colorScheme.background
                 )
             )
         },
@@ -53,34 +53,82 @@ fun StatsScreen(navController: NavController) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp),
-                        horizontalArrangement =  Arrangement.SpaceEvenly,
-
-                        ) {
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
                         IconButton(onClick = { navController.navigate("calendar") }) {
-                            Icon(imageVector =  ImageVector.vectorResource(id = R.drawable.baseline_calendar_month_24), contentDescription = "")
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.baseline_calendar_month_24),
+                                contentDescription = "캘린더로 이동"
+                            )
                         }
-                        IconButton(onClick = { navController.navigate("main") }) {
-                            Icon(Icons.Default.Home, contentDescription = "")
+                        IconButton(onClick = { navController.navigate("main")  }) {
+                            Icon(Icons.Default.Home, contentDescription = "홈으로 이동")
                         }
-                        IconButton(onClick = {  }) {
-                            Icon(Icons.Default.Info, contentDescription = "")
+                        IconButton(onClick = { }) {
+                            Icon(Icons.Default.Info, contentDescription = "통계 보기")
                         }
                     }
                 }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = {navController.navigate("selectProduct")}) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+            FloatingActionButton(onClick = { navController.navigate("selectProduct") }) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "새 항목 추가")
             }
         }
-    ) {innerpadding ->
-        Column (
-            modifier = Modifier.padding(innerpadding)
-        ){
-            Text("자세한 통계 보기")
-            // 필요한 다른 UI 요소들 추가
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Statistics Summary",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(8.dp)
+            )
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                item {
+                    OutlinedCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(text = "Total Weekly Calories", style = MaterialTheme.typography.bodyLarge)
+                            Text(text = "12,600 kcal", style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                }
+                item {
+                    OutlinedCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(text = "Average Daily Calories", style = MaterialTheme.typography.bodyLarge)
+                            Text(text = "1,800 kcal", style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                }
+                item {
+                    OutlinedCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(text = "Most Consumed Food", style = MaterialTheme.typography.bodyLarge)
+                            Text(text = "Chicken - 3 times", style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                }
+                // Add more statistic items here if needed
+            }
         }
     }
-
 }
