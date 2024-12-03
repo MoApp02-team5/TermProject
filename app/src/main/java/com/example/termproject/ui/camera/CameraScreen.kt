@@ -1,4 +1,4 @@
-package com.example.termproject.ui.pages
+package com.example.termproject.ui.camera
 
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult

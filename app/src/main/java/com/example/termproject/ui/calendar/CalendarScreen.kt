@@ -1,4 +1,4 @@
-package com.example.termproject.ui.pages
+package com.example.termproject.ui.calendar
 
 import android.os.Build
 import androidx.annotation.RequiresApi

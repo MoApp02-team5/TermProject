@@ -1,4 +1,4 @@
-package com.example.termproject.ui.pages
+package com.example.termproject.ui.product
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,16 +21,15 @@ import androidx.compose.ui.res.vectorResource
 import androidx.navigation.NavController
 import com.example.termproject.R
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddProductScreen(navController: NavController) {
+fun SelectProductScreen(navController: NavController) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Add")
+                    Text(text = "Select")
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background // 원하는 색으로 변경
@@ -44,22 +43,22 @@ fun AddProductScreen(navController: NavController) {
                 actions = {
                     TextButton(
                         modifier = Modifier.fillMaxSize(),
-                        onClick = { navController.navigate("selectProduct") }) {
-                        Text(text = "Add")
+                        onClick = { navController.navigate("main") }) {
+                        Text(text = "Select")
                     }
                 }
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {navController.navigate("camera")}) {
-                Icon(imageVector = ImageVector.vectorResource(id = R.drawable.baseline_camera_alt_24), contentDescription = "")
+                Icon(imageVector = ImageVector.vectorResource(id =R.drawable.baseline_camera_alt_24), contentDescription = "")
             }
         }
     ) { innerpadding ->
         Column (
             modifier = Modifier.padding(innerpadding)
         ){
-            Text("대충 물품 추가")
+            Text("대충 물품 선택")
         }
     }
 }

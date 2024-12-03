@@ -1,18 +1,21 @@
 package com.example.termproject
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.termproject.ui.pages.AddProductScreen
-import com.example.termproject.ui.pages.CalendarScreen
-import com.example.termproject.ui.pages.CameraScreen
-import com.example.termproject.ui.pages.LoginScreen
-import com.example.termproject.ui.pages.MainPageScreen
-import com.example.termproject.ui.pages.RegisterScreen
-import com.example.termproject.ui.pages.SelectProductScreen
-import com.example.termproject.ui.pages.StatsScreen
+import com.example.termproject.ui.product.AddProductScreen
+import com.example.termproject.ui.calendar.CalendarScreen
+import com.example.termproject.ui.camera.CameraScreen
+import com.example.termproject.ui.login.LoginScreen
+import com.example.termproject.ui.home.MainPageScreen
+import com.example.termproject.ui.register.RegisterScreen
+import com.example.termproject.ui.product.SelectProductScreen
+import com.example.termproject.ui.stats.StatsScreen
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavHost() {
     val navController = rememberNavController()
