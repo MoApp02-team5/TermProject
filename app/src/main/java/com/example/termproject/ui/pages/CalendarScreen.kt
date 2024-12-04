@@ -5,6 +5,8 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -24,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.termproject.R
+import com.example.termproject.ui.model.DateData
 import com.example.termproject.ui.theme.TermProjectTheme
 import java.time.LocalDate
 import java.time.YearMonth
@@ -33,9 +36,19 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CalendarScreen(navController: NavController) {
+fun CalendarScreen(
+    navController: NavController,
+    overallViewModel: OverallViewModel
+) {
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var currentMonth by remember { mutableStateOf(YearMonth.now()) }
+    val dateDataList by overallViewModel.dateDataList.collectAsState()
+
+    LaunchedEffect(selectedDate) {
+        overallViewModel.fetchDataForSpecificDate(selectedDate.toString())
+    }
+
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -99,6 +112,7 @@ fun CalendarScreen(navController: NavController) {
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(16.dp)
             )
+            DateDataLazyColumn(dateDataList = dateDataList)
         }
     }
 }
@@ -197,12 +211,32 @@ fun CalendarView(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true)
 @Composable
-fun CalendarPreview() {
-    TermProjectTheme {
-        CalendarScreen(navController = rememberNavController())
+fun DateDataLazyColumn(dateDataList: List<DateData>) {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        items(dateDataList) { dateData ->
+            CalendarDateDataCard(dateData)
+        }
     }
 }
 
+@Composable
+fun CalendarDateDataCard(dateData: DateData) {
+    OutlinedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(text = "User ID: ${dateData.user_id}", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "Kcal: ${dateData.kcal}", style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+    }
+}

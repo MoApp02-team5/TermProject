@@ -87,7 +87,17 @@ fun SelectProductScreen(
                             overallViewModel.saveSelectedProduct(
                                 product = selectedProduct,
                                 onSuccess = {
-                                    navController.navigate("main") // 저장 성공 시 이동
+                                    // 추가 작업: date 노드에 kcal 업데이트
+                                    overallViewModel.saveKcalToDate(
+                                        userId = overallViewModel.currentUserId.value ?: "",
+                                        kcal = selectedProduct.kcal,
+                                        onSuccess = {
+                                            navController.navigate("main") // 저장 성공 시 메인 페이지로 이동
+                                        },
+                                        onError = { e ->
+                                            Log.e("Firebase", "Error updating date node: ${e.message}")
+                                        }
+                                    )
                                 },
                                 onError = { e ->
                                     Log.e("Firebase", "Error saving user: ${e.message}")

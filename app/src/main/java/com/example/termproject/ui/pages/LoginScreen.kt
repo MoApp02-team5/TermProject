@@ -37,9 +37,11 @@ import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, overallViewModel: OverallViewModel) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+    var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -53,61 +55,64 @@ fun LoginScreen(navController: NavController) {
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background // 원하는 색으로 변경
+                    containerColor = MaterialTheme.colorScheme.background
                 )
             )
-        },
-        bottomBar = {
-            BottomAppBar(
-                containerColor = MaterialTheme.colorScheme.background,
-                actions = {
-                    TextButton(
-                        modifier = Modifier.fillMaxSize(),
-                        onClick = {navController.navigate("main")}
-                    ) {
-                        Text("Login")
-                    }
-                }
-            )
         }
-    ) {innerpadding ->
-        Column (
-            modifier = Modifier.fillMaxWidth()
-                .padding(innerpadding)
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(innerPadding)
                 .padding(16.dp),
-        ){
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = email,
-                onValueChange = {email = it},
-                label = {
-                    Text("E-mail")
-                },
+                onValueChange = { email = it },
+                label = { Text("E-mail") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = password,
-                onValueChange = {password = it},
-                label = {
-                    Text("Password")
-                },
+                onValueChange = { password = it },
+                label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
             Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    overallViewModel.loginUser(
+                        email = email,
+                        password = password,
+                        onSuccess = {
+                            navController.navigate("main")
+                        },
+                        onError = { error ->
+                            errorMessage = error.message
+                        }
+                    )
+                }
+            ) {
+                Text("Login")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            if (errorMessage != null) {
+                Text(text = errorMessage!!, color = Color.Red)
+            }
 
             TextButton(
-                modifier = Modifier.padding()
-                    .align(Alignment.Start),
-                onClick = { navController.navigate("register") })
-            {
+                onClick = { navController.navigate("register") }
+            ) {
                 Text("Register Page")
             }
         }
     }
-
 }
 //fun loginUser(email: String, password: String){
 //    val auth = FirebaseAuth.getInstance()

@@ -56,7 +56,7 @@ class CameraViewModel : ViewModel() {
             try {
                 val client = OkHttpClient()
                 val json = JSONObject().apply {
-                    put("model", "gpt-4o-mini")
+                    put("model", "gpt-4o")
                     put("messages", JSONArray().apply {
                         put(JSONObject().apply {
                             put("role", "user")
@@ -65,7 +65,7 @@ class CameraViewModel : ViewModel() {
                                     put("type", "text")
                                     put(
                                         "text",
-                                        "분석할 이미지를 제공합니다. 이미지를 분석하여 화면에 보이는 제품의 칼로리를 숫자로 반환하세요. 분석이 애매하거나 제품을 인식할 수 없는 경우, 0을 반환하세요. 오직 제품명과 숫자만 반환하세요."
+                                        "Provide images to analyze. Analyze the images and return the calories of the products shown on the screen as numbers. If the analysis is ambiguous or the product is not recognized, return 0. Return only the product name and number."
                                     )
                                 })
                                 put(JSONObject().apply {
@@ -116,11 +116,11 @@ class CameraViewModel : ViewModel() {
             try {
                 val client = OkHttpClient()
                 val json = JSONObject().apply {
-                    put("model", "gpt-4o-mini")
+                    put("model", "gpt-4o")
                     put("messages", JSONArray().apply {
                         put(JSONObject().apply {
                             put("role", "user")
-                            put("content", "Analyze the product name: $productName. Return only the calories as a number. If the product is ambiguous or unknown, return 0. 오직 숫자만 반환하세요.")
+                            put("content", "Analyze the product name: $productName. Return only the calories as a number. If the product is ambiguous or unknown, return 0. Only return the numbers")
                         })
                     })
                     put("max_tokens", 300)

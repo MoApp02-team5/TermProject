@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -36,7 +37,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.termproject.R
+import com.example.termproject.ui.model.DateData
 import com.example.termproject.ui.model.User
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,10 +50,25 @@ fun MainPageScreen(
     overallViewModel: OverallViewModel // ViewModel 추가
 ) {
     val userEatList by overallViewModel.userEatList.collectAsState()
+    val currentUserId by overallViewModel.currentUserId.collectAsState()
+    val dateDataList by overallViewModel.dateDataList.collectAsState()
+
+    val currentDate = remember {
+        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+    }
+
+    val filteredUserEatList = userEatList.filter { user ->
+        user.user_id == currentUserId && user.date == currentDate
+    }
+
+    val filteredDateDataList = dateDataList.filter { dateData ->
+        dateData.user_id == currentUserId && dateData.date == currentDate // user_id와 날짜 조건
+    }
 
     // 화면 로딩 시 데이터 가져오기
     LaunchedEffect(Unit) {
         overallViewModel.fetchUserEatData()
+        overallViewModel.fetchKcalDataFromDate()
     }
 
     Scaffold(
@@ -117,15 +137,15 @@ fun MainPageScreen(
                 modifier = Modifier.padding(8.dp)
             )
 
-            UserEatList(userEatList = userEatList)
+            DateDataList(dateDataList = filteredDateDataList) // 필터링된 리스트 전달
+
+            UserEatList(userEatList = filteredUserEatList) // 필터링된 리스트 전달
         }
     }
 }
 
 @Composable
-fun UserEatList(
-    userEatList: List<User>
-) {
+fun UserEatList(userEatList: List<User>) {
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
         items(userEatList) { user ->
             UserCard(user)
@@ -148,11 +168,11 @@ fun UserCard(user: User) {
         ) {
             // 이미지 추가
             AsyncImage(
-                model = user.imageurl, // 이미지 URL
+                model = user.imageurl,
                 contentDescription = "User Image",
                 modifier = Modifier
-                    .size(64.dp) // 이미지 크기
-                    .padding(end = 16.dp), // 텍스트와 간격
+                    .size(64.dp)
+                    .padding(end = 16.dp),
                 contentScale = ContentScale.Crop
             )
 
@@ -162,6 +182,38 @@ fun UserCard(user: User) {
                 Text(text = "Category: ${user.category}", style = MaterialTheme.typography.bodyMedium)
                 Text(text = "Kcal: ${user.kcal}", style = MaterialTheme.typography.bodyMedium)
                 Text(text = "Date: ${user.date}", style = MaterialTheme.typography.bodySmall)
+                Text(text = "User id: ${user.user_id}", style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+}
+
+@Composable
+fun DateDataList(dateDataList: List<DateData>) {
+    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+        items(dateDataList) { dateData ->
+            DateDataCard(dateData)
+        }
+    }
+}
+
+@Composable
+fun DateDataCard(dateData: DateData) {
+    OutlinedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Column {
+                Text(text = "User ID: ${dateData.user_id}", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "Kcal: ${dateData.kcal}", style = MaterialTheme.typography.bodyMedium)
+                Text(text = "Date: ${dateData.date}", style = MaterialTheme.typography.bodyMedium)
             }
         }
     }

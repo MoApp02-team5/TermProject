@@ -3,11 +3,9 @@ package com.example.termproject
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import android.net.Uri
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.example.termproject.ui.pages.AddProductScreen
 import com.example.termproject.ui.pages.CalendarScreen
 import com.example.termproject.ui.pages.CameraScreen
@@ -26,14 +24,26 @@ fun AppNavHost() {
     val viewModelcamera: CameraViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
     val viewModeloverall: OverallViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 
-    NavHost(navController = navController, startDestination = "main") {
-        composable("login") { LoginScreen(navController) }
-        composable("register") { RegisterScreen(navController) }
+    NavHost(navController = navController, startDestination = "login") {
+        composable("login") {
+            LoginScreen(
+                navController,
+                viewModeloverall
+            ) }
+        composable("register") {
+            RegisterScreen(
+                navController
+            ) }
         composable("main") { MainPageScreen(
             navController,
             viewModeloverall
         ) }
-        composable("calendar") { CalendarScreen(navController) }
+        composable("calendar") {
+            CalendarScreen(
+                navController,
+                viewModeloverall
+            )
+        }
         composable("stats") { StatsScreen(navController) }
         composable("selectProduct") {
             SelectProductScreen(
