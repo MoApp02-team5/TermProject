@@ -205,11 +205,12 @@ class OverallViewModel : ViewModel() {
     fun fetchDataForSpecificDate(selectedDate: String) {
         viewModelScope.launch {
             try {
+                val currentUserId = _currentUserId.value ?: return@launch // 현재 사용자 ID 확인
                 val dateSnapshot = databaseDate.child(selectedDate).get().await()
-                val dateDataList = dateSnapshot.children.mapNotNull { snapshot ->
-                    snapshot.getValue<DateData>() // DateData로 매핑
+                val filteredDateDataList = dateSnapshot.children.mapNotNull { snapshot ->
+                    snapshot.getValue<DateData>()?.takeIf { it.user_id == currentUserId } // user_id 필터링
                 }
-                _dateDataList.value = dateDataList // 해당 날짜 데이터로 상태 업데이트
+                _dateDataList.value = filteredDateDataList // 해당 날짜 데이터로 상태 업데이트
             } catch (e: Exception) {
                 Log.e("Firebase", "Error fetching data for specific date: ${e.message}")
             }

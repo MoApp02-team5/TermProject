@@ -34,7 +34,10 @@ import com.example.termproject.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StatsScreen(navController: NavController) {
+fun StatsScreen(
+    navController: NavController,
+    overallViewModel: OverallViewModel // ViewModel 추가
+) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {

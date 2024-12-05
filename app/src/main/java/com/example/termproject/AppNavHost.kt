@@ -44,7 +44,11 @@ fun AppNavHost() {
                 viewModeloverall
             )
         }
-        composable("stats") { StatsScreen(navController) }
+        composable("stats") {
+            StatsScreen(
+                navController,
+                viewModeloverall
+            ) }
         composable("selectProduct") {
             SelectProductScreen(
                 navController,

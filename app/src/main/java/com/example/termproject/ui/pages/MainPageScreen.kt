@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.BottomAppBar
@@ -78,7 +80,20 @@ fun MainPageScreen(
                 title = { Text(text = "MainPage") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
-                )
+                ),
+                actions = {
+                    IconButton(onClick = {
+                        overallViewModel.logout() // 로그아웃 실행
+                        navController.navigate("login") { // 로그인 화면으로 이동
+                            popUpTo("main") { inclusive = true } // 현재 화면 제거
+                        }
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                            contentDescription = "logout"
+                        )
+                    }
+                }
             )
         },
         bottomBar = {
