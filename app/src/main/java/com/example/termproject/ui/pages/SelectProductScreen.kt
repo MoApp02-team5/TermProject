@@ -1,6 +1,7 @@
 package com.example.termproject.ui.pages
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,7 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
@@ -20,6 +23,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -34,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
@@ -52,10 +57,18 @@ fun SelectProductScreen(
 ) {
     val productList by overallViewModel.productList.collectAsState() // Firebase에서 가져온 제품 목록
     var selectedProductId by remember { mutableStateOf("") } // 선택된 제품 ID
+    var selectedCategory by remember { mutableStateOf("전체") } // 선택된 카테고리
 
     LaunchedEffect(Unit) {
         overallViewModel.fetchProducts() // ViewModel에서 데이터를 가져옴
     }
+
+    val filteredProductList = if (selectedCategory == "전체") {
+        productList
+    } else {
+        productList.filter { it.category == selectedCategory }
+    }
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -66,12 +79,12 @@ fun SelectProductScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = {
-                        navController.navigate("main") { // 로그인 화면으로 이동
+                        navController.navigate("main") { // 메인 화면으로 이동
                             popUpTo("selectProduct") { inclusive = true } // 현재 화면 제거
                         }
                     }) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack, // 뒤로가기 아이콘
+                            imageVector = Icons.Default.ArrowBack, // 뒤로가기 아이콘
                             contentDescription = "back"
                         )
                     }
@@ -145,8 +158,14 @@ fun SelectProductScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
+            // 카테고리 버튼 추가
+            CategoryButtons(
+                selectedCategory = selectedCategory,
+                onCategorySelected = { selectedCategory = it }
+            )
+
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(productList) { product ->
+                items(filteredProductList) { product ->
                     ProductCard(
                         product = product,
                         isSelected = product.id == selectedProductId,
@@ -202,3 +221,39 @@ fun ProductCard(
         }
     }
 }
+
+@Composable
+fun CategoryButtons(
+    selectedCategory: String,
+    onCategorySelected: (String) -> Unit
+) {
+    val categories = listOf("전체", "과자", "음료수", "사탕/젤리", "아이스크림")
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+    ) {
+        items(categories) { category ->
+            OutlinedButton(
+                onClick = { onCategorySelected(category) }, // 선택된 카테고리 변경
+                modifier = Modifier.padding(horizontal = 4.dp),
+                shape = MaterialTheme.shapes.small.copy(CornerSize(0.dp)), // 사각형 모양
+                border = if (selectedCategory == category) {
+                    BorderStroke(2.dp, Color.Red) // 선택된 버튼 테두리 빨간색
+                } else {
+                    BorderStroke(1.dp, Color.Gray) // 기본 테두리 색상
+                }
+            ) {
+                Text(
+                    text = category,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = if (selectedCategory == category) {
+                        Color.Red // 선택된 버튼 텍스트 빨간색
+                    } else {
+                        MaterialTheme.colorScheme.onSurface // 기본 텍스트 색상
+                    }
+                )
+            }
+        }
+    }
+}
+

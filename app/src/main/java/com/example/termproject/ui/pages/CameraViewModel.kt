@@ -1,8 +1,6 @@
 package com.example.termproject.ui.pages
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.storage.FirebaseStorage
@@ -18,7 +16,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.ByteArrayOutputStream
 
 class CameraViewModel : ViewModel() {
 
@@ -40,122 +37,101 @@ class CameraViewModel : ViewModel() {
 
                 withContext(Dispatchers.Main) {
                     _uploadState.value = Result.success(downloadUrl)
+                    Log.d("FirebaseUpload", "이미지 업로드 성공: $downloadUrl")
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     _uploadState.value = Result.failure(e)
+                    Log.e("FirebaseUpload", "이미지 업로드 실패: ${e.message}")
                 }
             }
         }
     }
 
-    // OpenAI API 호출
-    fun analyzeImageWithChatGPT(imageUrl: String, apiKey: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _analysisState.value = Result.failure(Exception("Loading")) // 로딩 시작 상태를 임시로 표현
+    // OpenAI API 호출 (공통 함수)
+    private suspend fun makeApiCall(
+        payload: JSONObject,
+        apiKey: String
+    ): Result<String> {
+        return withContext(Dispatchers.IO) {
             try {
                 val client = OkHttpClient()
-                val json = JSONObject().apply {
-                    put("model", "gpt-4o")
-                    put("messages", JSONArray().apply {
-                        put(JSONObject().apply {
-                            put("role", "user")
-                            put("content", JSONArray().apply {
-                                put(JSONObject().apply {
-                                    put("type", "text")
-                                    put(
-                                        "text",
-                                        "Provide images to analyze. Analyze the images and return the calories of the products shown on the screen as numbers. If the analysis is ambiguous or the product is not recognized, return 0. Return only the product name and number."
-                                    )
-                                })
-                                put(JSONObject().apply {
-                                    put("type", "image_url")
-                                    put("image_url", JSONObject().apply {
-                                        put("url", imageUrl)
-                                    })
+                val body = payload.toString().toRequestBody("application/json".toMediaTypeOrNull())
+                val request = Request.Builder()
+                    .url("https://api.openai.com/v1/chat/completions")
+                    .addHeader("Authorization", "Bearer $apiKey")
+                    .post(body)
+                    .build()
+
+                val response = client.newCall(request).execute()
+                val responseBody = response.body?.string()
+
+                if (response.isSuccessful && responseBody != null) {
+                    val result = JSONObject(responseBody).getJSONArray("choices")
+                        .getJSONObject(0).getJSONObject("message").getString("content").trim()
+                    Log.d("OpenAI", "API 호출 성공: $result")
+                    Result.success(result)
+                } else {
+                    val errorMessage = "API 호출 실패: HTTP ${response.code} - ${response.message}"
+                    Log.e("OpenAI", errorMessage)
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Log.e("OpenAI", "API 호출 중 예외 발생: ${e.message}")
+                Result.failure(e)
+            }
+        }
+    }
+
+    // OpenAI API: 이미지 분석
+    fun analyzeImageWithChatGPT(imageUrl: String, apiKey: String) {
+        viewModelScope.launch {
+            _analysisState.value = Result.failure(Exception("Loading"))
+            val payload = JSONObject().apply {
+                put("model", "gpt-4o")
+                put("messages", JSONArray().apply {
+                    put(JSONObject().apply {
+                        put("role", "user")
+                        put("content", JSONArray().apply {
+                            put(JSONObject().apply {
+                                put("type", "text")
+                                put(
+                                    "text",
+                                    "Provide images to analyze. Analyze the images and return the calories of the products shown on the screen as numbers. If the analysis is ambiguous or the product is not recognized, return 0. Return only the number."
+                                )
+                            })
+                            put(JSONObject().apply {
+                                put("type", "image_url")
+                                put("image_url", JSONObject().apply {
+                                    put("url", imageUrl)
                                 })
                             })
                         })
                     })
-                    put("max_tokens", 300)
-                }
-
-                val body = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
-                val request = Request.Builder()
-                    .url("https://api.openai.com/v1/chat/completions")
-                    .addHeader("Authorization", "Bearer $apiKey")
-                    .post(body)
-                    .build()
-
-                val response = client.newCall(request).execute()
-                val responseBody = response.body?.string()
-
-                if (response.isSuccessful && responseBody != null) {
-                    val result = JSONObject(responseBody).getJSONArray("choices")
-                        .getJSONObject(0).getJSONObject("message").getString("content")
-                    withContext(Dispatchers.Main) {
-                        _analysisState.value = Result.success(result) // 성공 상태와 결과 저장
-                    }
-                } else {
-                    withContext(Dispatchers.Main) {
-                        val errorMessage = "API 호출 실패: HTTP ${response.code} - ${response.message}"
-                        _analysisState.value = Result.failure(Exception(errorMessage))
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    _analysisState.value = Result.failure(e) // 실패 상태 저장
-                }
+                })
+                put("max_tokens", 300)
             }
+
+            _analysisState.value = makeApiCall(payload, apiKey)
         }
     }
 
+    // OpenAI API: 제품명 분석
     fun analyzeProductWithChatGPT(productName: String, apiKey: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _analysisState.value = Result.failure(Exception("Loading")) // 로딩 상태 설정
-            try {
-                val client = OkHttpClient()
-                val json = JSONObject().apply {
-                    put("model", "gpt-4o")
-                    put("messages", JSONArray().apply {
-                        put(JSONObject().apply {
-                            put("role", "user")
-                            put("content", "Analyze the product name: $productName. Return only the calories as a number. If the product is ambiguous or unknown, return 0. Only return the numbers")
-                        })
+        viewModelScope.launch {
+            _analysisState.value = Result.failure(Exception("Loading"))
+            val payload = JSONObject().apply {
+                put("model", "gpt-4o")
+                put("messages", JSONArray().apply {
+                    put(JSONObject().apply {
+                        put("role", "user")
+                        put("content", "Analyze the product name: $productName. Return only the calories as a number. If the product is ambiguous or unknown, return 0. Only return the numbers.")
                     })
-                    put("max_tokens", 300)
-                }
-
-                val body = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
-                val request = Request.Builder()
-                    .url("https://api.openai.com/v1/chat/completions")
-                    .addHeader("Authorization", "Bearer $apiKey")
-                    .post(body)
-                    .build()
-
-                val response = client.newCall(request).execute()
-                val responseBody = response.body?.string()
-
-                if (response.isSuccessful && responseBody != null) {
-                    val result = JSONObject(responseBody).getJSONArray("choices")
-                        .getJSONObject(0).getJSONObject("message").getString("content")
-                    withContext(Dispatchers.Main) {
-                        _analysisState.value = Result.success(result.trim()) // 성공 상태와 결과 저장
-                    }
-                } else {
-                    withContext(Dispatchers.Main) {
-                        val errorMessage = "API 호출 실패: HTTP ${response.code} - ${response.message}"
-                        _analysisState.value = Result.failure(Exception(errorMessage))
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    _analysisState.value = Result.failure(e) // 실패 상태 저장
-                }
+                })
+                put("max_tokens", 300)
             }
+
+            _analysisState.value = makeApiCall(payload, apiKey)
         }
     }
-
-
-
 }

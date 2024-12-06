@@ -32,11 +32,13 @@ fun AppNavHost() {
             ) }
         composable("register") {
             RegisterScreen(
-                navController
+                navController,
+                viewModeloverall
             ) }
-        composable("main") { MainPageScreen(
-            navController,
-            viewModeloverall
+        composable("main") {
+            MainPageScreen(
+                navController,
+                viewModeloverall
         ) }
         composable("calendar") {
             CalendarScreen(
