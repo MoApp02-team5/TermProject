@@ -45,6 +45,8 @@ fun LoginScreen(
     var password by rememberSaveable { mutableStateOf("") }
     var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
 
+    val isFormValid = email.isNotBlank() && password.isNotBlank()
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -52,14 +54,6 @@ fun LoginScreen(
                 title = {
                     Text(text = "Login Page")
                 },
-                actions = {
-                    IconButton(onClick = {}) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
             )
         }
     ) { innerPadding ->
@@ -68,7 +62,6 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .padding(innerPadding)
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
@@ -99,31 +92,27 @@ fun LoginScreen(
                             errorMessage = error.message
                         }
                     )
-                }
+                },
+                enabled = isFormValid,
+                modifier = Modifier
+                    .fillMaxWidth() // 버튼이 양옆으로 차게
             ) {
                 Text("Login")
             }
-
             Spacer(modifier = Modifier.height(16.dp))
             if (errorMessage != null) {
-                Text(text = errorMessage!!, color = Color.Red)
+                Text(
+                    text = errorMessage!!,
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
             }
-
             TextButton(
-                onClick = { navController.navigate("register") }
+                onClick = { navController.navigate("register") },
+                modifier = Modifier.align(Alignment.Start) // 왼쪽 정렬
             ) {
                 Text("Register Page")
             }
         }
     }
 }
-//fun loginUser(email: String, password: String){
-//    val auth = FirebaseAuth.getInstance()
-//
-//    auth.signInWithEmailAndPassword(email, password)
-//}
-//fun logout(){
-//    val auth = FirebaseAuth.getInstance()
-//
-//    auth.signOut()
-//}

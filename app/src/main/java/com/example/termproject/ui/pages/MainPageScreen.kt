@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.BottomAppBar
@@ -132,14 +131,14 @@ fun MainPageScreen(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                navController.navigate("selectProduct"){
+                navController.navigate("selectProduct") {
                     popUpTo("main") { inclusive = true }
                 }
             }) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "새 항목 추가")
             }
         }
-    )  { innerPadding ->
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -161,7 +160,10 @@ fun MainPageScreen(
 
 @Composable
 fun UserEatList(userEatList: List<User>) {
-    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(16.dp) // 아이템 간 간격 추가
+    ) {
         items(userEatList) { user ->
             UserCard(user)
         }
@@ -173,7 +175,10 @@ fun UserCard(user: User) {
     OutlinedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(vertical = 8.dp) // 아이템 간격 추가
+            .padding(horizontal = 16.dp), // 양쪽 여백 추가
+        shape = MaterialTheme.shapes.medium,
+        //elevation = 4.dp // 그림자 추가
     ) {
         Row(
             modifier = Modifier
@@ -192,12 +197,27 @@ fun UserCard(user: User) {
             )
 
             // 텍스트 정보
-            Column {
-                Text(text = "Name: ${user.name}", style = MaterialTheme.typography.bodyLarge)
-                Text(text = "Category: ${user.category}", style = MaterialTheme.typography.bodyMedium)
-                Text(text = "Kcal: ${user.kcal}", style = MaterialTheme.typography.bodyMedium)
-                Text(text = "Date: ${user.date}", style = MaterialTheme.typography.bodySmall)
-                Text(text = "User id: ${user.user_id}", style = MaterialTheme.typography.bodySmall)
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    text = "Name: ${user.name}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "Category: ${user.category}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "Kcal: ${user.kcal}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "Date: ${user.date}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                // User id 주석 처리
+                // Text(text = "User id: ${user.user_id}", style = MaterialTheme.typography.bodySmall)
             }
         }
     }
@@ -205,7 +225,10 @@ fun UserCard(user: User) {
 
 @Composable
 fun DateDataList(dateDataList: List<DateData>) {
-    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(16.dp) // 아이템 간 간격 추가
+    ) {
         items(dateDataList) { dateData ->
             DateDataCard(dateData)
         }
@@ -217,19 +240,24 @@ fun DateDataCard(dateData: DateData) {
     OutlinedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(vertical = 8.dp) // 아이템 간격 추가
+            .padding(horizontal = 16.dp), // 양쪽 여백 추가
+        shape = MaterialTheme.shapes.medium,
+        //elevation = 4.dp // 그림자 추가
     ) {
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Column {
-                Text(text = "User ID: ${dateData.user_id}", style = MaterialTheme.typography.bodyLarge)
-                Text(text = "Kcal: ${dateData.kcal}", style = MaterialTheme.typography.bodyMedium)
-                Text(text = "Date: ${dateData.date}", style = MaterialTheme.typography.bodyMedium)
-            }
+            Text(
+                text = "Kcal: ${dateData.kcal}",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = "Date: ${dateData.date}",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }

@@ -42,74 +42,102 @@ fun RegisterScreen(
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+    var confirmPassword by rememberSaveable { mutableStateOf("") }
+    var errorMessage by rememberSaveable { mutableStateOf("") }
+
+    val isFormValid = email.isNotBlank() &&
+            password.isNotBlank() &&
+            confirmPassword.isNotBlank() &&
+            password == confirmPassword
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Register page")
+                    Text(text = "Register Page")
                 },
-                actions = {
-                    IconButton(onClick = {}) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "")
-
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background // 원하는 색으로 변경
-                )
-            )
-        },
-        bottomBar = {
-            BottomAppBar(
-                containerColor = MaterialTheme.colorScheme.background,
-                actions = {
-                    TextButton(
-                        modifier = Modifier.fillMaxSize(),
-                        onClick = {navController.navigate("main")}
-                    ) {
-                        Text("Register")
-                    }
-                }
             )
         }
-    )
-    {innerpadding ->
-
-        Column (
-            modifier = Modifier.fillMaxWidth()
-                .padding(innerpadding)
-                .padding(16.dp),
-        ){
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
+        ) {
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = email,
-                onValueChange = {email = it},
-                label = {
-                    Text("E-mail")
-                },
+                onValueChange = { email = it },
+                label = { Text("E-mail") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = password,
-                onValueChange = {password = it},
-                label = {
-                    Text("Password")
-                },
+                onValueChange = { password = it },
+                label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
             Spacer(modifier = Modifier.height(16.dp))
-            TextButton (
-                modifier = Modifier.padding()
-                    .align(Alignment.Start),
-                onClick = { navController.navigate("login") })
-            {
-                Text("Login Page")
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Confirm Password") },
+                visualTransformation = PasswordVisualTransformation(),
+                isError = password.isNotEmpty() &&
+                        confirmPassword.isNotEmpty() &&
+                        confirmPassword != password
+            )
+            if (password.isNotEmpty() && confirmPassword.isNotEmpty() && confirmPassword != password) {
+                Text(
+                    text = "Passwords do not match",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    overallViewModel.registerUser(
+                        email = email,
+                        password = password,
+                        onSuccess = {
+                            navController.navigate("login") {
+                                popUpTo("register") { inclusive = true }
+                            }
+                        },
+                        onError = { exception ->
+                            errorMessage = exception.message ?: "Unknown error occurred"
+                        }
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = isFormValid // 모든 필드 유효성 검사
+            ) {
+                Text("Register")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            TextButton(
+                onClick = { navController.navigate("login") },
+                modifier = Modifier.align(Alignment.Start)
+            ) {
+                Text("Go to Login Page")
+            }
+            if (errorMessage.isNotBlank()) {
+                Text(
+                    text = errorMessage,
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
             }
         }
     }
 }
+

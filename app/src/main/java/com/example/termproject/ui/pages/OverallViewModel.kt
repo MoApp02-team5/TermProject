@@ -217,4 +217,19 @@ class OverallViewModel : ViewModel() {
         }
     }
 
+    fun registerUser(email: String, password: String, onSuccess: () -> Unit, onError: (Exception) -> Unit) {
+        viewModelScope.launch {
+            try {
+                auth.createUserWithEmailAndPassword(email, password).await()
+                auth.currentUser?.let { user ->
+                    _currentUserId.value = user.uid
+                }
+                onSuccess()
+            } catch (e: Exception) {
+                onError(e)
+            }
+        }
+    }
+
+
 }
