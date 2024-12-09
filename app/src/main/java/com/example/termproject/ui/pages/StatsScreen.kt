@@ -66,8 +66,10 @@ fun StatsScreen(
     // 오늘 먹은 간식 카테고리 통계
     val todayStatistics = calculateCategoryStatistics(filteredUserEatList)
 
-    // 전체 간식 카테고리 통계
-    val totalStatistics = calculateCategoryStatistics(userEatList)
+    // 현재 계정 기준 전체 간식 카테고리 통계
+    val totalStatistics = calculateCategoryStatistics(
+        userEatList.filter { user -> user.user_id == currentUserId }
+    )
 
     // ViewModel에서 데이터 가져오기
     LaunchedEffect(Unit) {
@@ -247,4 +249,3 @@ fun calculateCategoryStatistics(data: List<User>): Map<String, Int> {
         .filterKeys { it in categories } // 카테고리 4개로 제한
         .filter { it.value > 0 } // 0인 카테고리 제외
 }
-
